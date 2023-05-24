@@ -1,0 +1,61 @@
+<html>
+    <head lang="en">
+        <meta charset="UTF-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <script src="https://cdn.tailwindcss.com"></script>    
+        <meta name="csrf-token" content="<%= csrfToken %>" />
+        <link rel="stylesheet" href="/css/styles.css">
+        <title>
+            <%= title %>
+        </title>
+    </head>
+    <body>
+        <div class="grid grid-cols-6 grid-rows-6 gap-2">
+            <div class="col-start-3 col-span-2">
+                <%- include('header.ejs') %> 
+                <h6 class="py-4">Signup as a new user</h6>
+                <div>
+                    <% if(messages && messages.error && messages.error.length > 0)  { %>
+                        <% for(var i=0; i<messages.error.length; i++) { %>
+                            <li> <%= messages.error[i] %></li>
+                        <% } %>
+                      <% } %>
+                </div>
+                <form action="/users" method="post">
+                    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                    <div class="form-container mx-3 px-4 gap-2">
+                      <div class="form-field my-3">
+                        <label class="text-sm">First Name</label>
+                        <input class="rounded border-2 text-sm p-2 w-full" type="text" name="firstname" placeholder="First Name">
+                      </div>
+                      <div class="form-field my-3">
+                        <label class="text-sm">Last Name</label>
+                        <input class="rounded border-2 text-sm p-2 w-full" type="text" name="lastname" placeholder="Last Name">
+                      </div>
+                      <div class="custom-container">
+                        <span class="label">Role:</span>
+                        <div>
+                          <input type="radio" name="role" class="role-option" id="admin">
+                          <label class="role-label" for="admin">Admin</label>
+                          <input type="radio" name="role" class="role-option" id="player">
+                          <label class="role-label" for="player">Player</label>
+                        </div>
+                      </div>
+                      <div class="form-field my-3">
+                        <label class="text-sm">Email</label>
+                        <input class="rounded border-2 text-sm p-2 w-full" type="email" name="email" placeholder="Email">
+                      </div>
+                      <div class="form-field my-3">
+                        <label class="text-sm">Password</label>
+                        <input class="rounded border-2 text-sm p-2 w-full" type="password" name="password" placeholder="Password">
+                      </div>
+                      <div class="form-field my-3">
+                        <button class="rounded px-4 my-3 bg-blue-500 text-white border-2 p-2 hover:bg-blue-800" type="submit">Sign Up</button>
+                      </div>
+                    </div>
+                  </form>
+            </div>
+        </div>
+    </body>
+</html>
