@@ -3,14 +3,25 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="<%= csrfToken %>">
     <script src="https://cdn.tailwindcss.com"></script>
     <title>Sport Scheduler</title>
 </head>
 <body>
     <%- include('header')%>
-    <div>      
-        <form class="container mx-auto my-10">
+    <div> 
+        <div>
+            <% if(messages && messages.error && messages.error.length > 0)  { %>
+                <% for(var i=0; i<messages.error.length; i++) { %>
+                    <li> <%= messages.error[i] %></li>
+                <% } %>
+              <% } %>
+        </div>     
+        <form class="container mx-auto my-10" action="/createsession" method="POST">
             <h2 class="text-4xl my-8">Create Session</h2>
+            <input type="hidden" name="_csrf" value="<%= csrfToken %>"/>
+            <input type="text" name="sportname" id="sportname" class="hidden" value="<%= sportId.id %>" hidden>
+            <input type="text" name="user" id="user" class="hidden" value="<%= getUser.role %>" hidden>
             <div>
                 <label for="date" class="text-lg">Date and Time of Session:</label>
                 <input type="datetime-local" name="dateTime" id="date" class="border-2 mt-2 p-2 rounded w-64 border-green-900">
