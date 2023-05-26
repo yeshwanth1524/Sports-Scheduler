@@ -5,8 +5,10 @@
   "main": "index.js",
   "scripts": {
     "start": "nodemon -e js,ejs",
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "prepare": "cd . && husky install ./.husky"
+    "pretest": "NODE_ENV=test npx sequelize-cli db:drop && NODE_ENV=test npx sequelize-cli db:create",
+    "test": "NODE_ENV=test jest --detectOpenHandles",
+    "prepare": "cd . && husky install ./.husky",
+    "start:prod": "node index.js"
   },
   "lint-staged": {
     "*.js": [
@@ -27,10 +29,22 @@
     "sequelize-cli": "^6.6.0"
   },
   "dependencies": {
+    "bcrypt": "^5.1.0",
+    "cheerio": "^1.0.0-rc.12",
+    "connect-ensure-login": "^0.1.1",
+    "connect-flash": "^0.1.1",
+    "cookie-parser": "^1.4.6",
+    "csurf": "^1.11.0",
     "ejs": "^3.1.9",
     "express": "^4.18.2",
+    "express-session": "^1.17.3",
+    "flash": "^1.1.0",
+    "passport": "^0.6.0",
+    "passport-local": "^1.0.0",
     "pg": "^8.11.0",
     "pg-hstore": "^2.3.4",
-    "sequelize": "^6.31.1"
+    "sequelize": "^6.31.1",
+    "supertest": "^6.3.3",
+    "tiny-csrf": "^1.1.3"
   }
 }
