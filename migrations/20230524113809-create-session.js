@@ -16,7 +16,7 @@ module.exports = {
         type: Sequelize.DATE
       },
       playername: {
-        type: Sequelize.ARRAY
+        type: Sequelize.ARRAY(Sequelize.STRING),
       },
       numplayers: {
         type: Sequelize.INTEGER
