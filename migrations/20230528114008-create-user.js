@@ -9,10 +9,10 @@ module.exports = {
         primaryKey: true,
         type: Sequelize.INTEGER
       },
-      firstname: {
+      fname: {
         type: Sequelize.STRING
       },
-      lastname: {
+      lname: {
         type: Sequelize.STRING
       },
       email: {
@@ -24,7 +24,7 @@ module.exports = {
         type: Sequelize.STRING
       },
       role: {
-        type: Sequelize.STRING,
+        type: Sequelize.STRING
       },
       sessionId: {
         type: Sequelize.ARRAY(Sequelize.INTEGER),
