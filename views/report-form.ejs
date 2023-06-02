@@ -1,0 +1,25 @@
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Report Form</title>
+</head>
+
+<body>
+    <%- include('header')%>
+    <h1>Generate Report</h1>
+    <form action="/report" method="POST">
+        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+        <label for="startDate">Start Date:</label>
+        <input type="date" id="startDate" name="startDate" required>
+
+        <label for="endDate">End Date:</label>
+        <input type="date" id="endDate" name="endDate" required>
+
+        <button type="submit">Generate</button>
+    </form>
+</body>
+
+</html>
