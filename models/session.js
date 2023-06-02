@@ -1,188 +1,150 @@
 'use strict';
-const {Model,Op} = require('sequelize');
+const { Model, Op } = require('sequelize');
+
 module.exports = (sequelize, DataTypes) => {
   class session extends Model {
-    /**
-     * Helper method for defining associations.
-     * This method is not a part of Sequelize lifecycle.
-     * The `models/index` file will call this method automatically.
-     */
     static associate(models) {
-      session.belongsTo(models.user,{
-        foreignKey: 'userId'  
-      })
-      // define association here
-    }
-    static addSession({sportname, dateTime, place, players, numplayers, created, userId}){
-      return this.create({
-        sportname: sportname,
-        time: dateTime,
-        userId: userId,
-        place: place,
-        playername: players,
-        numplayers: numplayers,
-        created: created
-      })
+      session.belongsTo(models.user, {
+        foreignKey: 'userId'
+      });
+      session.belongsTo(models.sports, { 
+        foreignKey: 'sportId'
+      });
     }
 
-    static async addPlayer(sessionId, player) {
-      try {
-          // Find the session by ID
-          const session = await this.findByPk(sessionId);
-  
-          // Get the current player names
-          let playerNames = session.playername;
-  
-          // Add the new player to the player names array
-          playerNames.push(player);
-  
-          // Update the session with the new player names
-          return this.update({
-              playername: playerNames
-          }, {
-              where: {
-                  id: sessionId
-              }
-          });
-      } catch (error) {
-          console.log(error);
+    static initAssociations(models) {
+      session.belongsTo(models.sports, {
+        foreignKey: 'sportId'
+      });
+    }
 
-          throw new Error("Failed to add player");
-      }
-  }
-  static deleteSession(sportname, userId) {
-    return this.destroy({
-      where: {
-        sportname,
-        userId
-      },
-    });
-  }
+    static async addPlayer(id, player) {
+      const session = await this.findByPk(id);
+      const playerNames = session.playername.slice();
+      playerNames.push(player);
+      return session.update({
+        playername: playerNames,
+      });
+    }
 
-    static getSessions({sportname,userId}){
-      const currentDate = new Date();
+    static addSession({sportname,dateTime,venue,players,numofplayers,sessioncreated,userId,canceledReason,}) {
+      return this.create({sportname: sportname,time: dateTime,userId: userId,venue: venue,playername: players,numofplayers: numofplayers,
+        sessioncreated: sessioncreated,canceledReason: canceledReason,
+      });
+    }
+
+    static deleteSession(name, userId) {
+      return this.destroy({
+        where: {
+          sportname: name,
+          userId: userId,
+        },
+      });
+    }
+
+    static getSession({ sportname, userId }) {
       return this.findAll({
         where: {
           sportname: sportname,
-          created: true,
-          userId,
+          sessioncreated: true,
+          userId: userId,
           time: {
-            [Op.gt]: currentDate,
-        }
-        }
-      })
-    }
-
-    static getAllSessions({ sportname }) {
-      const currentDate = new Date();
-      return this.findAll({
-          where: {
-              sportname: sportname,
-              time: {
-                  [Op.gt]: currentDate,
-              }
-          }
+            [Op.gt]: new Date(),
+          },
+        },
       });
-  }
+    }
 
-  static async getPreviousSessions(sportname) {
-    const currentDate = new Date();
-  
-    return this.findAll({
-      where: {
-        sportname: sportname,
-        sessioncreated: false,
-        time: {
-          [Op.lt]: currentDate,
+    static async cancelSession(id, userId, reason) {
+      await this.update(
+        {
+          sessioncreated: false,
+          canceledReason: reason,
         },
-      },
-    });
-  }  
+        {
+          where: {
+            id: id,
+            userId: userId,
+          },
+        }
+      );
 
-  static getPlayedSessions(userId) {
-    const currentDate = new Date();
-  
-    return this.findAll({
-      where: {
-        userId: userId,
-        sessioncreated: true,
-        dateTime: {
-          [Op.lt]: currentDate,
+      // Return the canceled session
+      return this.findOne({
+        where: {
+          id: id,
+          userId: userId,
         },
-      },
-    });
-  }
-  
-  static async cancelSession(id) {
-      try {
-          // Update the session with sessioncreated set to false
-          return this.update({
-              sessioncreated: false
-          }, {
-              where: {
-                  userId: id
-              }
-          });
-      } catch (error) {
-          console.log(error);
+      });
+    }
 
-          throw new Error("Failed to cancel session");
-      }
-  }
-  
-  static getSessionById(id) {
+    static getSessionById(id) {
       return this.findByPk(id);
-  }
-  
-  static async removePlayer(playername, id) {
-    try {
-        const session = await this.findByPk(id);
-        const playerIndex = session.playername.indexOf(playername);
-        session.playername.splice(playerIndex, 1);
+    }
 
-        // Update the session with the updated player names
-        return this.update({
-            playername: session.playername
-        }, {
-            where: {
-                id
-            }
+    static getAllSession({ sportname }) {
+      return this.findAll({
+        where: {
+          sportname: sportname,
+          sessioncreated: true,
+          time: {
+            [Op.gt]: new Date(),
+          },
+        },
+      });
+    }
+
+    static async removePlayer(playername, id) {
+      const session = await this.findByPk(id);
+      const playerNames = session.playername.slice();
+      const index = playerNames.indexOf(playername);
+      if (index > -1) {
+        playerNames.splice(index, 1);
+        return session.update({
+          playername: playerNames,
         });
-    } catch (error) {
-        console.log(error);
-        throw new Error("Failed to remove player");
+      }
+      return session;
+    }
+
+    static async getAllCanceledSessions() {
+      return this.findAll({
+        where: {
+          sessioncreated: false,
+          time: {
+            [Op.gt]: new Date(),
+          },
+        },
+      });
+    }
+
+    static async getSessionsCount(startDate, endDate) {
+      return this.count({
+        where: {
+          time: {
+            [Op.between]: [startDate, endDate],
+          },
+        },
+      });
     }
   }
 
-  }
-  session.init({
-    sportname: {
-      type: DataTypes.STRING,
-      allowNull: false
+  session.init(
+    {
+      sportname: DataTypes.INTEGER,
+      time: DataTypes.DATE,
+      venue: DataTypes.STRING,
+      playername: DataTypes.ARRAY(DataTypes.STRING),
+      numofplayers: DataTypes.INTEGER,
+      sessioncreated: DataTypes.BOOLEAN,
+      canceledReason: DataTypes.STRING,
+      sportId: DataTypes.INTEGER, 
     },
-    time: {
-      type: DataTypes.DATE,
-      allowNull: false
-    },
-    playername: {
-      type: DataTypes.ARRAY(DataTypes.STRING),
-      allowNull: false
-    },
-    numplayers: {
-      type: DataTypes.INTEGER,
-      allowNull: false
-    },
-    place: {
-      type: DataTypes.STRING,
-      allowNull: false
-    },
-    created: {
-      type: DataTypes.BOOLEAN,
-      defaultValue: false
+    {
+      sequelize,
+      modelName: 'session',
     }
-   }, {
-    sequelize,
-    modelName: 'session',
-  });
+  );
+
   return session;
 };

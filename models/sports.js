@@ -1,41 +1,32 @@
 'use strict';
-const {
-  Model
-} = require('sequelize');
+const { Model, Op } = require('sequelize');
+const session = require('./session');
+
 module.exports = (sequelize, DataTypes) => {
   class sports extends Model {
-    /**
-     * Helper method for defining associations.
-     * This method is not a part of Sequelize lifecycle.
-     * The `models/index` file will call this method automatically.
-     */
     static associate(models) {
       sports.belongsTo(models.user, {
-        foreignKey: "userId",
+        foreignKey: 'userId'
       });
-      // define association here
+      sports.hasMany(models.session, {
+        foreignKey: 'sportId'
+      });
     }
 
-    static createsports({sport, userId}){
+    static createsports({ sport, userId }) {
       return this.create({
         sport_name: sport,
-        userId
-      })
+        userId: userId,
+      });
     }
-    static getSports(){
-      return this.findAll();
-    }
-    static findSportById(id) {
-      return this.findByPk(id);
-    }
+
     static async deleteSport(id) {
       try {
         const rowDeleted = await this.destroy({
           where: {
-            id
+            id: id,
           },
         });
-    
         if (rowDeleted === 1) {
           console.log("Deleted successfully");
         }
@@ -44,33 +35,72 @@ module.exports = (sequelize, DataTypes) => {
       }
     }
 
-    static async findSportByName(sportname, userId) {
+    static async getSports() {
       try {
-          const getSport = await this.findAll({
-              where: {
-                  sport_name: sportname,
-                  userId
-              }
-          });
-          return (getSport.length === 0 ? true : false);
+        return this.findAll({
+          order: [['id', 'ASC']],
+        });
       } catch (error) {
-          console.log(error);
-          throw new Error('Error in finding sport');
+        console.error('could not get all sports', error);
       }
-  }
-  static getSportByUserId(userId) {
-    return this.findAll({
-      where: {
-        userId
-      },
-    });
-  }
-  }
-  sports.init({
-    sport_name: DataTypes.STRING
-  }, {
-    sequelize,
-    modelName: 'sports',
-  });
+    }
+
+    static findSportById(id) {
+      return this.findByPk(id);
+    }
+
+    static getSportByUserId(userId) {
+      return this.findAll({
+        where: {
+          userId: userId,
+        },
+      });
+    }
+
+    static async getSportsPopularity(startDate, endDate) {
+      const sportsPopularity = await this.findAll({
+        attributes: ['sport_name', [sequelize.fn('count', sequelize.col('sport_name')), 'popularity']],
+        where: {
+          createdAt: {
+            [Op.between]: [startDate, endDate],
+          },
+        },
+        group: 'sport_name',
+        raw: true,
+        order: sequelize.literal('popularity DESC'),
+      });
+
+      return sportsPopularity.map(sport => ({
+        name: sport.sport_name,
+        popularity: sport.popularity,
+      }));
+    }
+
+    static async findSportByName(sportname, userId) {
+      const sport = await this.findOne({
+        where: {
+          sport_name: sportname,
+          userId: userId,
+        },
+      });
+      if (sport != null) {
+        return sport.length == 0 ? true : false;
+      } else {
+        return sport == null ? true : false;
+      }
+    }
+
+  }    
+
+  sports.init(
+    {
+      sport_name: DataTypes.STRING
+    },
+    {
+      sequelize,
+      modelName: 'sports',
+    }
+  );
+
   return sports;
 };

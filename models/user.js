@@ -10,38 +10,48 @@ module.exports = (sequelize, DataTypes) => {
      * The `models/index` file will call this method automatically.
      */
     static associate(models) {
-      user.hasMany(models.session, {
-        foreignKey: "userId",
-      });
-      user.hasMany(models.sports, {
-        foreignKey: "userId",
-      });
+      user.hasMany(models.session,{
+        foreignKey: 'userId'
+      })
+      user.hasMany(models.sports,{
+        foreignKey: 'userId'
+      })
       // define association here
     }
     static async getUser(userId) {
       return this.findByPk(userId);
     }
-    static async addSessionIdInUser(sessionId, userId) {
-      const getUser = await this.getUser(userId);
-      const updatedSessionId = [...getUser.sessionId, sessionId];
-      return this.update(
-        {
-          sessionId: updatedSessionId,
-        },
-        {
-          where: {
-            id: userId,
+
+    static async AddsessionIdinuser(sessionId, userId) {
+      try {
+        const getUser = await this.getUser(userId);
+        getUser.sessionId.push(sessionId);
+        return this.update(
+          {
+            sessionId: getUser.sessionId,
           },
-        }
-      );
+          {
+            where: {
+              id: userId,
+            },
+          }
+        );
+      } catch (error) {
+        console.log(error);
+        throw error;
+      }
     }
     
+
     static async removeSessionId(sessionId, userId) {
-      const getUser = await this.getUser(userId);
-      const updatedSessionId = getUser.sessionId.filter((id) => id !== sessionId);
+      const user = await this.getUser(userId);
+      const index = user.sessionId.indexOf(sessionId);
+      if (index !== -1) {
+        user.sessionId.splice(index, 1);
+      }
       return this.update(
         {
-          sessionId: updatedSessionId,
+          sessionId: user.sessionId,
         },
         {
           where: {
@@ -50,11 +60,10 @@ module.exports = (sequelize, DataTypes) => {
         }
       );
     }
-
   }
   user.init({
-    firstname: DataTypes.STRING,
-    lastname: DataTypes.STRING,
+    fname: DataTypes.STRING,
+    lname: DataTypes.STRING,
     email: DataTypes.STRING,
     password: DataTypes.STRING,
     role: DataTypes.STRING,
