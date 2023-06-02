@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -9,37 +10,37 @@
 </head>
 <body>
     <%- include('header')%>
-    <div> 
+    <div class="container mx-auto p-4 my-8 bg-white rounded-lg shadow-lg">
         <div>
             <% if(messages && messages.error && messages.error.length > 0)  { %>
-                <% for(var i=0; i<messages.error.length; i++) { %>
-                    <li> <%= messages.error[i] %></li>
-                <% } %>
+              <% for(var i=0; i<messages.error.length; i++) { %>
+                      <li class="text-red-600"> <%= messages.error[i] %></li>
               <% } %>
-        </div>     
-        <form class="container mx-auto my-10" action="/createsession" method="POST">
-            <h2 class="text-4xl my-8">Create Session</h2>
+            <% } %>
+        </div>
+        <form class="container mx-auto my-8" action="/createsession" method="POST">
+            <h2 class="text-4xl my-6">Create Session</h2>
             <input type="hidden" name="_csrf" value="<%= csrfToken %>"/>
             <input type="text" name="sportname" id="sportname" class="hidden" value="<%= sportId.id %>" hidden>
             <input type="text" name="user" id="user" class="hidden" value="<%= getUser.role %>" hidden>
             <div>
-                <label for="date" class="text-lg">Date and Time of Session:</label>
-                <input type="datetime-local" name="dateTime" id="date" class="border-2 mt-2 p-2 rounded w-64 border-green-900">
+                <p class="mb-0 text-xl">Input Date and Time of session</p>
+                <input type="datetime-local" name="dateTime" id="date" class="border-2 mt-4 p-2 rounded w-60 border-green-600">
             </div>
             <div>
-                <label for="playername" class="text-lg">Players Joining Session (Comma-separated):</label>
-                <input type="text" name="playername" id="playername" class="border-2 mt-2 p-2 rounded w-full border-green-900">
+                <p class="mb-0 text-xl">Input Venue of session to be held</p>
+                <input type="text" name="venue" id="venue" class="border-2 mt-4 p-2 rounded w-full border-green-600">
             </div>
             <div>
-                <label for="numplayers" class="text-lg">Number of Players:</label>
-                <input type="number" name="numplayers" id="numplayers" class="border-2 mt-2 p-2 rounded w-64 border-green-900">
+                <p class="mb-0 text-xl">Enter Players Joining sessions (Comma-separated)</p>
+                <input type="text" name="playername" id="playername" class="border-2 mt-4 p-2 rounded w-full border-green-600">
             </div>
             <div>
-                <label for="place" class="text-lg">place of Session:</label>
-                <textarea name="place" id="place" cols="50" rows="5" class="border-2 mt-2 p-2 rounded border-green-900"></textarea>
+                <p class="mb-0 text-xl">Input total No. of Players</p>
+                <input type="number" name="numofplayers" id="numofplayers" class="border-2 mt-4 p-2 rounded w-60 border-green-600">
             </div>
             <div>
-                <input type="submit" name="submit" id="submit" class="bg-green-900 text-white p-2 cursor-pointer rounded-lg border-2 border-green-900 hover:bg-white hover:text-black mt-5">
+                <input type="submit" name="submit" id="submit" class="bg-green-600 text-white p-2 cursor-pointer rounded-lg border-2 border-green-600 hover:bg-white hover:text-black mt-5">
             </div>
         </form>
     </div>

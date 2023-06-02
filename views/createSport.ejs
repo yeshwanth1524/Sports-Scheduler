@@ -1,24 +1,25 @@
+<!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="csrf-token" content="<%= csrfToken %>">
-    <link rel="stylesheet" href="https://cdn.tailwindcss.com">
-    <title>Sports Scheduler</title>
-</head>
-<body>
-    <%- include('header')%>
-    <p class="text-5xl text-center mt-10">Create a New Sport</p>
-    <form action="/createsport" method="POST" class="text-center mt-10 p-4">
-        <p class="m-4 mb-0 text-2xl">Enter Name of the Sport</p><br>
-        <input type="hidden" name="_csrf" value="<%= csrfToken %>"/>
-        <input type="text" name="sport" id="sportname" class="border-2 p-4 rounded w-3/5 border-green-900" placeholder="e.g. cricket, badminton, tennis">
-        <br>
-        <% if(sportcreated){ %>
-        <p class="text-red-500">Sport Already Created</p>    
-        <% } %>
-        <input type="submit" name="submit" id="submit" class="bg-green-900 text-white p-2 cursor-pointer rounded-lg border-2 border-green-900 hover:bg-white hover:text-black mt-5">
-    </form>
+    <head>
+        <meta charset="UTF-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta name="csrf-token" content="<%= csrfToken %>">
+        <script src="https://cdn.tailwindcss.com"></script>
+        <title>Sports Scheduler</title>
+    </head>
+    <body>
+        <%- include('header')%>
+        <p class="text-6xl text-center mt-10">Create new Sport</p>
+        <form action="/createsport" method="POST" class="text-center block mt-10 p-6 text-2xl block">
+            <p class="m-4 mb-0">Enter sport Name</p><br>
+            <input type="hidden" name="_csrf" value="<%= csrfToken %>"/>
+            <input type="text" name="sport" id="sportname" class="border-2 p-6 rounded w-3/6 border-lime-950" placeholder="eg. cricket,badminton,tennis">
+            <br>
+            <% if(sportcreated){ %>
+            <p>Sport Has Already Been Created</p>    
+            <% } %>
+            <input type="submit" name="submit" id="submit" class="bg-lime-950 text-white p-2 cursor-pointer rounded-lg border-2 border-lime-950 hover:bg-white hover:text-black mt-5">
+        </form>
 </body>
 </html>

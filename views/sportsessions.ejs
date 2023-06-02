@@ -1,48 +1,94 @@
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="https://cdn.tailwindcss.com">
+    <meta name="csrf-token" content="<%= csrfToken %>">
+    <script src="https://cdn.tailwindcss.com"></script>
     <title>Sports Scheduler</title>
 </head>
 
 <script>
+    var token = document
+                      .querySelector('meta[name = "csrf-token"]')
+                      .getAttribute('content');
     function deleteSport(id){
-    fetch(`/sportsession/${id}`,{
-      method : 'DELETE',
-      headers : {"content-type" : 'application/json'},
-    })
-    .then((res) =>{
-      if(res.ok){
-        window.location.assign('/admin');
-      }
-       
-    })
-    .catch((error)=> console.log(error)); 
-}
+        fetch(`/sportsession`,{
+            method : 'DELETE',
+            headers : {"content-type" : 'application/json'},
+            body: JSON.stringify({
+                id: id,
+                name: '<%= getUser.role %>',
+                '_csrf': token
+            })
+        })
+        .then((res) =>{
+            if(res.ok){
+                window.location.assign('/admin');
+            }
+        })
+        .catch((error)=> console.log(error)); 
+    }
 </script>
 
 <body>
-    <%- include('header', { page: "name" })%>
-    <div class="container mx-auto mt-10 p-auto">
+    <%- include('header')%>
+    <div class="container m-auto mt-10 p-auto">
         <div>
-            <p class="text-4xl font-bold mb-5"><%= name %></p>
-            <% if(user === 'admin') { %>
-                <a href="#" class="text-right my-10 text-teal-500">Edit</a>    
-                <a href="#" onclick="deleteSport(<%= sportID %>)" class="text-right mx-10 text-teal-500">Delete</a>    
+            <p class="text-6xl mb-5"><%= name %></p>
+            <% if(getUser.role == 'admin') { %>
+                <a href="#" onclick="deleteSport(<%= sportID %>)" class="text-right mx-10 text-lime-950">Delete</a>    
             <% } %>
         </div>
-        
         <br>
-        <p class="text-xl">Sessions</p>
-        <div class="w-56 mt-10 rounded-lg text-white bg-teal-500 h-16 cursor-pointer hover:bg-white hover:text-teal-500 border-2 border-teal-500 flex items-center justify-center">
-           <a href="#"> Jan 1, 2023 5:30 PM </a>
-        </div>
-    </div>
-    <div class="container mx-auto mt-10 p-auto text-lg gap-10">
-        <a href="/createsession" class="text-teal-500">Create a new session</a>
-        <a href="#" class="px-10">View previous sessions</a>
+        <p class="text-2xl">Created by you</p>
+        <% for(var i=0; i<allSessions.length; i++) { %>
+            <% if(getUser.id == allSessions[i].userId ){%>
+                <a href="/session/<%= allSessions[i].id %>">
+                    <div class="w-auto mt-10 rounded-lg flex text-white px-10 py-4 bg-lime-950 h-16 cursor-pointer overflow-hidden hover:bg-white hover:text-lime-950 border-2 border-lime-950">
+                        <%= allSessions[i].time %>
+                        <p class="text-right ml-10">
+                            <%= (allSessions[i].numofplayers - allSessions[i].playername.length) %> slots available
+                        </p> 
+                    </div>
+                </a>
+            <% } %>
+        <% } %>
+    <br>
+        <p class="text-2xl">Other Sessions</p>
+        <% for(var i=0; i<allSessions.length; i++) { %>
+            <% if(getUser.id != allSessions[i].userId && !getUser.sessionId.includes(allSessions[i].id) ){%>
+                <a href="/session/<%= allSessions[i].id %>">
+                    <div class="w-auto mt-10 rounded-lg flex text-white px-10 py-4 bg-lime-950 h-16 cursor-pointer overflow-hidden hover:bg-white hover:text-lime-950 border-2 border-lime-950">
+                        <%= allSessions[i].time %>
+                        <p class="text-right ml-10">
+                            <%= (allSessions[i].numofplayers - allSessions[i].playername.length) %> slots available
+                        </p> 
+                    </div>
+                </a>
+            <% } %>
+        <% } %>
+    <br>
+    <p class="text-2xl">Joined Sessions</p> 
+    <% if(getUser.sessionId != null) {%>
+        <% for(var i=0; i<allSessions.length; i++) { %>
+            <% if(getUser.sessionId.includes(allSessions[i].id) ){%>
+                <a href="/session/<%= allSessions[i].id %>">
+                    <div class="w-auto mt-10 rounded-lg flex text-white px-10 py-4 bg-lime-950 h-16 cursor-pointer overflow-hidden hover:bg-white hover:text-lime-950 border-2 border-lime-950">
+                        <%= allSessions[i].time %>
+                        <p class="text-right ml-10">
+                            <%= (allSessions[i].numofplayers - allSessions[i].playername.length) %> slots available
+                        </p> 
+                    </div>
+                </a>
+            <% } %>
+        <% } %>
+    <% } %>
+
+</div>
+    <div class="container m-auto mt-10 p-auto text-xl gap-10" >
+        <a href="/createsession/<%= sportID %>" >Create a new session</a>
     </div>
 </body>
 </html>
