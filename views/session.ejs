@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="<%= csrfToken %>">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <title>Sports Scheduler</title>
+</head>
+
+<script>
+  var token = document
+    .querySelector('meta[name="csrf-token"]')
+    .getAttribute('content');
+  
+  function cancelsession(id, sportId, user) {
+    var reason = prompt("Enter reason for session cancellation:");
+    if (reason) {
+      fetch(`/cancelsession`, {
+        method: 'PUT',
+        headers: {
+          "content-type": 'application/json',
+          "csrf-token": token
+        },
+        body: JSON.stringify({
+          id: id,
+          sportId: sportId,
+          user: user,
+          reason: reason
+        })
+      })
+        .then((res) => {
+          console.log(res);
+          if (res.ok) {
+            console.log('session canceled');
+            window.location.reload();
+          }
+        })
+        .catch((error) => console.log(error));
+    }
+  }
+
+  function removeplayer(playername, id) {
+    fetch(`/session/${playername}/${id}`, {
+      method: 'PUT',
+      headers: {
+        "content-type": 'application/json',
+        "csrf-token": token
+      },
+      body: JSON.stringify({
+        '_csrf': token
+      })
+    })
+      .then((res) => {
+        if (res.ok) {
+          window.location.reload();
+        }
+      })
+      .catch((error) => console.log(error));
+  }
+
+  function addplayer(playername, id) {
+  fetch(`/addPlayer`, {
+    method: 'PUT',
+    headers: {
+      "content-type": 'application/json',
+      "csrf-token": token
+    },
+    body: JSON.stringify({
+      '_csrf': token,
+      playername,
+      id
+    })
+  })
+  .then((res) => {
+    if (res.ok) {
+      window.location.reload();
+    }
+  })
+  .catch((error) => console.log(error));
+}
+
+</script>
+
+<body>
+    <%- include('header')%>
+    <div class="container mx-auto">
+        <h1 class="text-4xl my-10 m-10"><%= allSessions.sportname %> Session #<%= allSessions.id %></h1>
+        <div class="my-10 text-xl m-10">
+            <p>Date & Time: <%= allSessions.time %></p>
+            <br>
+            <p>Venue: <%= allSessions.venue %></p>
+        </div>
+        <div class="m-10">
+            <h1 class="text-4xl">Players</h1>
+            <div class="flex lg:flex-nowrap sm:flex-wrap gap-10">
+                <% for(var i=0; i<allSessions.playername.length; i++) { %>
+                <div class="w-full mt-10 rounded-lg text-white px-10 py-4 bg-green-600 h-16 cursor-pointer flex justify-between overflow-auto hover:bg-white hover:text-green-600 border-2 border-green-400">    
+                        <a href="#" class="">
+                            <%= allSessions.playername[i] %>
+                        </a>
+                        <% if(allSessions.userId == getUser.id){ %>
+                        <a href="#" onclick="removeplayer('<%= allSessions.playername[i] %>', <%= allSessions.id %>);">        
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                        </a>
+                        <% } %>
+                </div>    
+                <% } %>
+            </div>
+        </div>
+        
+        <% if (allSessions.sessioncreated) { %>
+          <% if (allSessions.userId == getUser.id) { %>
+            <div class="m-10 gap-10">
+              <a href="#" onclick="cancelsession(<%= allSessions.id %>, '<%= allSessions.sportname %>', '<%= getUser.role %>')">Cancel Session</a>
+            </div>
+          <% } else { %>
+            <% if (allSessions.canceledReason) { %>
+              <div class="m-10 gap-10">
+                <p>Session Canceled: <%= allSessions.canceledReason %></p>
+              </div>
+            <% } %>
+          <% } %>
+        <% } %>
+        
+        <% if(getUser.sessionId != null) { %>
+            <% if(!getUser.sessionId.includes(allSessions.id) && (allSessions.numofplayers - allSessions.playername.length) >= 1) { %>
+                <div class="m-10 gap-10 text-xl">
+                    <a href="#" onclick="addplayer('<%= getUser.fname %>', <%= allSessions.id %> )" class="mx-auto">Join Session</a>                
+                </div>
+            <% } %>
+        <% } %>    
+    </div>
+</body>
+</html>
