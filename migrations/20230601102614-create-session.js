@@ -15,14 +15,14 @@ module.exports = {
       time: {
         type: Sequelize.DATE
       },
-      address: {
-        type: Sequelize.STRING
-      },
       playername: {
         type: Sequelize.ARRAY(Sequelize.STRING),
       },
-      noplayers: {
+      numofplayers: {
         type: Sequelize.INTEGER
+      },
+      venue: {
+        type: Sequelize.STRING
       },
       sessioncreated: {
         type: Sequelize.BOOLEAN
