@@ -26,6 +26,28 @@
                 <% }%>    
             </ul>
         </div>
+        <div class="mt-6">
+            <div class="text-xl">
+                <h1 class="text-2xl">Canceled Sessions</h1>
+                <% for(var i=0; i<allCanceledSessions.length; i++) { %>
+                    <% if(getUser.sessionId.includes(allCanceledSessions[i].id) ){%>
+                        <a href="/session/<%= allCanceledSessions[i].id %>">
+                            <div class="w-auto mt-10 rounded-lg flex text-white px-10 py-4 bg-red-500 h-16 cursor-pointer overflow-hidden hover:bg-white hover:text-red-500 border-2 border-red-500">
+                                <%= allCanceledSessions[i].time %>
+                                <p class="text-right ml-10">
+                                    Canceled - <%= allCanceledSessions[i].canceledReason %>
+                                    <% for(var j=0; j<allSports.length; j++) { %>
+                                        <% if(allCanceledSessions[i].sportname === allSports[j].id){ %>
+                                            (Sport: <%= allSports[j].sport_name %>)
+                                        <% } %>
+                                    <% } %>
+                                </p> 
+                            </div>
+                        </a>
+                    <% } %>
+                <% } %>
+            </div>
+        </div>        
     </div>
 </body>
 </html>
