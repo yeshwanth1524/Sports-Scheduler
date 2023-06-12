@@ -211,31 +211,33 @@ app.get("/signup", (request, response) => {
   });
 });
 
-app.get("/admin",ConnectEnsureLogin.ensureLoggedIn(),async (request, response) => {
-    const loggedinUser = request.user.id;
-    console.log(loggedinUser);
-    const allSports = await sports.getSports();
-    const getUser = await user.getUser(loggedinUser);
-    response.render("admin", {
-      getUser,
-      allSports,
-      csrfToken: request.csrfToken(),
-    });
-  }
-);
+app.get("/admin", ConnectEnsureLogin.ensureLoggedIn(), async (request, response) => {
+  const loggedinUser = request.user.id;
+  console.log(loggedinUser);
+  const allSports = await sports.getSports();
+  const getUser = await user.getUser(loggedinUser);
+  const allCanceledSessions = await session.getAllCanceledSessions(); // Fetch all canceled sessions
+  response.render("admin", {
+    getUser,
+    allSports,
+    allCanceledSessions, // Pass allCanceledSessions 
+    csrfToken: request.csrfToken(),
+  });
+});
 
-app.get("/user",ConnectEnsureLogin.ensureLoggedIn(),async (request, response) => {
-    const loggedinUser = request.user.id;
-    console.log(loggedinUser);
-    const allSports = await sports.getSports();
-    const getUser = await user.getUser(loggedinUser);
-    response.render("player", {
-      getUser,
-      allSports,
-      csrfToken: request.csrfToken(),
-    });
-  }
-);
+app.get("/user", ConnectEnsureLogin.ensureLoggedIn(), async (request, response) => {
+  const loggedinUser = request.user.id;
+  console.log(loggedinUser);
+  const allSports = await sports.getSports();
+  const getUser = await user.getUser(loggedinUser);
+  const allCanceledSessions = await session.getAllCanceledSessions(); // Fetch all canceled sessions
+  response.render("player", {
+    getUser,
+    allSports,
+    allCanceledSessions, // Pass allCanceledSessions 
+    csrfToken: request.csrfToken(),
+  });
+});
 
 app.get("/createsport",ConnectEnsureLogin.ensureLoggedIn(),(request, response) => {
     response.render("createSport", {
@@ -270,6 +272,8 @@ app.post("/createsport",ConnectEnsureLogin.ensureLoggedIn(), async (request, res
           userId: request.user.id,
         });
         const getUser = await user.getUser(request.user.id);
+        const allCanceledSessions = await session.getAllCanceledSessions();
+        const allSports = await sports.getSports();
         console.log(sport.id);
         response.render("sportsessions", {
           user: "admin",
@@ -277,6 +281,8 @@ app.post("/createsport",ConnectEnsureLogin.ensureLoggedIn(), async (request, res
           name: request.body.sport,
           sportID: sport.id,
           allSessions,
+          allSports,
+          allCanceledSessions: allCanceledSessions,
           csrfToken: request.csrfToken(),
         });
       }
@@ -289,10 +295,14 @@ app.get("/sportsession",ConnectEnsureLogin.ensureLoggedIn(),async (request, resp
     console.log(request.body.id);
     const getUser = await user.getUser(request.user.id);
     const sport = await sports.getSports();
+    const allCanceledSessions = await session.getAllCanceledSessions();
+    const allSports = await sports.getSports();
     response.render("sportsessions", {
       getUser,
       name: sport.sport_name,
       sportID: sport.id,
+      allSports,
+      allCanceledSessions: allCanceledSessions,
       csrfToken: request.csrfToken(),
     });
   }
@@ -310,13 +320,17 @@ app.get("/sportsession/:id",ConnectEnsureLogin.ensureLoggedIn(),async (request, 
     });
     console.log(allSessions);
     const getUser = await user.getUser(request.user.id);
+    const allCanceledSessions = await session.getAllCanceledSessions({ sportname: sport.id });
+    const allSports = await sports.getSports();
     response.render("sportsessions", {
       getUser,
       name: sport.sport_name,
       sportID: sport.id,
       allSessions,
+      allSports,
+      allCanceledSessions,
       csrfToken: request.csrfToken(),
-    });
+    });    
   }
 );
 
@@ -472,17 +486,22 @@ app.post("/report", csrfProtection, async (request, response) => {
 
 app.put("/cancelsession", ConnectEnsureLogin.ensureLoggedIn(), async (request, response) => {
   try {
-    const { id, reason } = request.body;
+    const { id, sportId, reason } = request.body;
     await session.cancelSession(id, request.user.id, reason);
     const allSessions = await session.getAllSession({
-      sportname: sports.id,
+      sportname: sportId,
       userId: request.user.id,
     });
-    const allCanceledSessions = await session.getAllCanceledSessions(); // Fetch canceled sessions
+    const allCanceledSessions = await session.getAllCanceledSessions();
+    const allSports = await sports.getSports();
     response.render("sportsessions", {
       allSessions: allSessions,
       allCanceledSessions: allCanceledSessions,
-      getUser: request.user, 
+      allSports,
+      getUser: request.user,
+      csrfToken: request.csrfToken(),
+      name: sportId,
+      sportID: sportId
     });
   } catch (error) {
     console.log(error);
@@ -515,5 +534,6 @@ app.put("/addPlayer", ConnectEnsureLogin.ensureLoggedIn(), async (request, respo
     response.status(500).send("Error adding player to session");
   }
 });
+
 
 module.exports = app;

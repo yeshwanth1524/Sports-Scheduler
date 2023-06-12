@@ -71,18 +71,16 @@
         <% } %>
     <br>
     <p class="text-2xl">Joined Sessions</p> 
-    <% if(getUser.sessionId != null) {%>
-        <% for(var i=0; i<allSessions.length; i++) { %>
-            <% if(getUser.sessionId.includes(allSessions[i].id) ){%>
-                <a href="/session/<%= allSessions[i].id %>">
-                    <div class="w-auto mt-10 rounded-lg flex text-white px-10 py-4 bg-lime-950 h-16 cursor-pointer overflow-hidden hover:bg-white hover:text-lime-950 border-2 border-lime-950">
-                        <%= allSessions[i].time %>
-                        <p class="text-right ml-10">
-                            <%= (allSessions[i].numofplayers - allSessions[i].playername.length) %> slots available
-                        </p> 
-                    </div>
-                </a>
-            <% } %>
+    <% for(var i=0; i<allSessions.length; i++) { %>
+        <% if(getUser.sessionId.includes(allSessions[i].id) ){%>
+            <a href="/session/<%= allSessions[i].id %>">
+                <div class="w-auto mt-10 rounded-lg flex text-white px-10 py-4 bg-lime-950 h-16 cursor-pointer overflow-hidden hover:bg-white hover:text-lime-950 border-2 border-lime-950">
+                    <%= allSessions[i].time %>
+                    <p class="text-right ml-10">
+                        <%= (allSessions[i].numofplayers - allSessions[i].playername.length) %> slots available
+                    </p> 
+                </div>
+            </a>
         <% } %>
     <% } %>
 
