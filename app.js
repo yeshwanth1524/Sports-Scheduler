@@ -469,14 +469,14 @@ app.post("/report", csrfProtection, async (request, response) => {
     // Get the number of sessions played in the time period
     const sessionsPlayed = await session.getSessionsCount(momentStartDate, momentEndDate);
 
-    // Get the relative popularity of sports in the time period
-    const sportsPopularity = await sports.getSportsPopularity(momentStartDate, momentEndDate);
+    // Get the number of sessions played for each sport in the time period
+    const sportsSessionsCount = await session.getSportsSessionsCount(momentStartDate, momentEndDate);
 
     response.render("report", {
       startDate: momentStartDate.format("YYYY-MM-DD"),
       endDate: momentEndDate.format("YYYY-MM-DD"),
       sessionsPlayed: sessionsPlayed,
-      sportsPopularity: sportsPopularity
+      sportsSessionsCount: sportsSessionsCount
     });
   } catch (error) {
     console.error("Error generating report:", error);

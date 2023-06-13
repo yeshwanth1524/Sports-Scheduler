@@ -1,6 +1,5 @@
 'use strict';
-const { Model, Op } = require('sequelize');
-const session = require('./session');
+const { Model} = require('sequelize');
 
 module.exports = (sequelize, DataTypes) => {
   class sports extends Model {
@@ -55,25 +54,6 @@ module.exports = (sequelize, DataTypes) => {
           userId: userId,
         },
       });
-    }
-
-    static async getSportsPopularity(startDate, endDate) {
-      const sportsPopularity = await this.findAll({
-        attributes: ['sport_name', [sequelize.fn('count', sequelize.col('sport_name')), 'popularity']],
-        where: {
-          createdAt: {
-            [Op.between]: [startDate, endDate],
-          },
-        },
-        group: 'sport_name',
-        raw: true,
-        order: sequelize.literal('popularity DESC'),
-      });
-
-      return sportsPopularity.map(sport => ({
-        name: sport.sport_name,
-        popularity: sport.popularity,
-      }));
     }
 
     static async findSportByName(sportname, userId) {

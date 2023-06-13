@@ -10,14 +10,13 @@
 <body>
   <%- include('header')%>
   <h1>Session Report</h1>
-  <h2>Number of Sessions Played</h2>
   <p>Total sessions played in the configurable time period: <%= sessionsPlayed %></p>
   
-  <h2>Relative Popularity of Sports</h2>
+  <h2>Number of Sessions Played for Each Sport</h2>
   <ul>
-    <% sportsPopularity.forEach(function(sport) { %>
-      <li><%= sport.name %>: <%= sport.popularity %></li>
-    <% }); %>
+    <% for (const sport in sportsSessionsCount) { %>
+      <li><%= sport %>: <%= sportsSessionsCount[sport] %></li>
+    <% } %>
   </ul>
 </body>
 </html>

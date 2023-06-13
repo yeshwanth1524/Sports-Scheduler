@@ -12,12 +12,6 @@ module.exports = (sequelize, DataTypes) => {
       });
     }
 
-    static initAssociations(models) {
-      session.belongsTo(models.sports, {
-        foreignKey: 'sportId'
-      });
-    }
-
     static async addPlayer(id, player) {
       const session = await this.findByPk(id);
       const playerNames = session.playername.slice();
@@ -127,6 +121,42 @@ module.exports = (sequelize, DataTypes) => {
         },
       });
     }
+
+    static getValidSessions({ sportname, userId, startDate, endDate }) {
+      return this.findAll({
+        where: {
+          sportname: sportname,
+          sessioncreated: true,
+          userId: userId,
+          time: {
+            [Op.between]: [startDate, endDate],
+          },
+        },
+      });
+    }
+    
+    static async getSportsSessionsCount(startDate, endDate) {
+      const sports = await this.sequelize.models.sports.findAll();
+    
+      const counts = {};
+      for (const sport of sports) {
+        const count = await this.count({
+          where: {
+            sportname: sport.id,
+            sessioncreated: true, // Include only created sessions
+            time: {
+              [Op.between]: [startDate, endDate],
+            },
+          },
+        });
+    
+        counts[sport.sport_name] = count;
+      }
+    
+      return counts;
+    }
+        
+    
   }
 
   session.init(
