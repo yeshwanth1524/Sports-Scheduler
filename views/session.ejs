@@ -80,7 +80,26 @@
   })
   .catch((error) => console.log(error));
 }
-
+function leaveSession(playername, id) {
+    if (confirm("Are you sure you want to leave the session?")) {
+      fetch(`/session/${playername}/${id}`, {
+        method: 'PUT',
+        headers: {
+          "content-type": 'application/json',
+          "csrf-token": token
+        },
+        body: JSON.stringify({
+          '_csrf': token
+        })
+      })
+        .then((res) => {
+          if (res.ok) {
+            window.location.reload();
+          }
+        })
+        .catch((error) => console.log(error));
+    }
+  }
 </script>
 
 <body>
@@ -95,22 +114,23 @@
         <div class="m-10">
             <h1 class="text-4xl">Players</h1>
             <div class="flex lg:flex-nowrap sm:flex-wrap gap-10">
-                <% for(var i=0; i<allSessions.playername.length; i++) { %>
+              <% for(var i=0; i<allSessions.playername.length; i++) { %>
                 <div class="w-full mt-10 rounded-lg text-white px-10 py-4 bg-green-600 h-16 cursor-pointer flex justify-between overflow-auto hover:bg-white hover:text-green-600 border-2 border-green-400">    
-                        <a href="#" class="">
-                            <%= allSessions.playername[i] %>
-                        </a>
-                        <% if(allSessions.userId == getUser.id){ %>
-                        <a href="#" onclick="removeplayer('<%= allSessions.playername[i] %>', <%= allSessions.id %>);">        
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
-                            </svg>
-                        </a>
-                        <% } %>
+                  <a href="#" class="">
+                    <%= allSessions.playername[i] %>
+                  </a>
+                  <% if(allSessions.userId == getUser.id || allSessions.playername[i] == getUser.fname){ %>
+                    <a href="#" onclick="leaveSession('<%= allSessions.playername[i] %>', <%= allSessions.id %>);">        
+                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                    </a>
+                  <% } %>
                 </div>    
-                <% } %>
+              <% } %>
             </div>
         </div>
+        
         
         <% if (allSessions.sessioncreated) { %>
           <% if (allSessions.userId == getUser.id) { %>

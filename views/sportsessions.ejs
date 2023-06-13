@@ -9,6 +9,13 @@
     <title>Sports Scheduler</title>
 </head>
 
+<style>
+    .highlight {
+        background-color: blue;
+        font-weight: bold;
+    }
+</style>
+
 <script>
     var token = document
                       .querySelector('meta[name = "csrf-token"]')
@@ -30,6 +37,26 @@
         })
         .catch((error)=> console.log(error)); 
     }
+    function searchSession() {
+    const searchTerm = prompt("Enter your search term:");
+    if (searchTerm) {
+        let numMatches = 0;
+        const regex = new RegExp(searchTerm, 'gi');
+        const pageContent = document.documentElement.innerHTML;
+        const highlightedContent = pageContent.replace(regex, match => `<span class="highlight">${match}</span>`);
+
+        document.documentElement.innerHTML = highlightedContent;
+
+        const highlightedElements = document.getElementsByClassName("highlight");
+        numMatches = highlightedElements.length;
+
+        if (numMatches === 0) {
+            alert("No matches found.");
+        } else {
+            alert(`Found ${numMatches} match(es).`);
+        }
+    }
+}
 </script>
 
 <body>
@@ -38,11 +65,16 @@
         <div>
             <p class="text-6xl mb-5"><%= name %></p>
             <% if(getUser.role == 'admin') { %>
-                <a href="#" onclick="deleteSport(<%= sportID %>)" class="text-right mx-10 text-lime-950">Delete</a>    
+              <button onclick="deleteSport(<%= sportID %>)" class="text-right mx-10 bg-lime-950 text-white py-2 px-4 rounded">Delete Sport</button>    
             <% } %>
-        </div>
+          </div>
+          <br>
+          <div class="container m-auto mt-10 p-auto text-xl gap-10">
+            <a href="/createsession/<%= sportID %>" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Create a new session</a>
+            <button onclick="searchSession()" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Search Session</button>
+        </div>         
         <br>
-        <p class="text-2xl">Created by you</p>
+        <p class="text-2xl">Sessions Created by you</p>
         <% for(var i=0; i<allSessions.length; i++) { %>
             <% if(getUser.id == allSessions[i].userId ){%>
                 <a href="/session/<%= allSessions[i].id %>">
@@ -85,8 +117,5 @@
     <% } %>
 
 </div>
-    <div class="container m-auto mt-10 p-auto text-xl gap-10" >
-        <a href="/createsession/<%= sportID %>" >Create a new session</a>
-    </div>
 </body>
 </html>
