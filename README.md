@@ -3,6 +3,10 @@
 The Sports Scheduling App is a web application designed to manage and schedule sports sessions. 
 It provides a user-friendly interface for users to create, join, and manage sports sessions.
 
+# Video link
+
+https://www.loom.com/share/a6c84e24a4074200a3dc0db7dc361913?sid=d86f3e57-83aa-4def-81fb-515f4f5b1a3b
+
 ## Player Features
 
 * Player can create multiple sessions by selecting any of available sports.
